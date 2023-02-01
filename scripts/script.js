@@ -8,6 +8,8 @@ let generatedDivArray = [];
 let frames = 0;
 let intervalId = null;
 
+// const sampleArray = [kickAudio, snareAudio, hiHatAudio];
+
 const keys = {
   ArrowLeft: 1,
   ArrowUp: 2,
@@ -16,40 +18,39 @@ const keys = {
 };
 
 // Selecting a random column to generate a note
-const randomColumn = function () {
-  const random = Math.floor(Math.random() * (5 - 1) + 1);
-  switch (random) {
-    case 1:
-      return "first";
-      break;
-    case 2:
-      return "second";
-      break;
-    case 3:
-      return "third";
-      break;
-    case 4:
-      return "fourth";
-      break;
-  }
-};
+// const randomColumn = function () {
+//   const random = Math.floor(Math.random() * (5 - 1) + 1);
+//   switch (random) {
+//     case 1:
+//       return "first";
+//       break;
+//     case 2:
+//       return "second";
+//       break;
+//     case 3:
+//       return "third";
+//       break;
+//     case 4:
+//       return "fourth";
+//       break;
+//   }
+// };
 
 // Generating a div corresponding to a note to press
-const generateDivNote = function (columnSelected = randomColumn()) {
-  // const columnSelected = randomColumn();
-  const randomDiv = document.createElement("div");
-
-  randomDiv.classList.add("div-test");
-  document.getElementById(columnSelected).appendChild(randomDiv);
-
-  generatedDivArray.push(randomDiv);
+const generateDivNote = function (columnSelected) {
+  const noteDiv = document.createElement("div");
+  noteDiv.classList.add("div-test");
+  noteDiv.dataset.column = columnSelected;
+  console.log(noteDiv);
+  document.getElementById(columnSelected).appendChild(noteDiv);
+  generatedDivArray.push(noteDiv);
 };
 
 // Removing that div
 const removeNote = function (noteToRemove) {
   noteToRemove.remove();
-  //document.querySelector(".div-test").remove();
 };
+
 const notes = [
   {
     name: "cool stuff",
@@ -57,12 +58,37 @@ const notes = [
   },
 ];
 
+const noteAudios = {
+  noteName: "audioElement",
+};
+
+const noteObj = {
+  20: "noteName",
+};
+
 // Moving the note down using setInterval (for now)
 const moveNote = function () {
+  // const note = notesObj[frames];
+  // if (note) {
+  //   //display note
+  // }
+  // noteAudios[note].play();
   // let i = 0;
+  let kickCount = 0;
+  const kick = 30;
+  const snare = 60;
   intervalId = setInterval(function movingNote() {
-    if (frames % 30 === 0) {
-      generateDivNote();
+    if (frames % kick === 0) {
+      generateDivNote("first");
+      kickCount += kick;
+    }
+    // Snare
+    if (frames % snare === 0 && frames !== 0) {
+      generateDivNote("second");
+    }
+    // Hi-hat
+    if (frames === kickCount - 15) {
+      generateDivNote("third");
     }
     for (const note of generatedDivArray) {
       const noteStyle = getComputedStyle(note);
@@ -82,9 +108,6 @@ const moveNote = function () {
     // console.log(note.style.top)
   }, 1000 / 60);
 };
-
-// Selecting random times to generate a note, for now
-const random = function () {};
 
 // Highlighting a square upon keystroke
 const highlightSquare = function (keyPressed) {
@@ -170,36 +193,14 @@ const isOnSquare = function (div) {
 
 // Detect column
 const detectColumn = function (div) {
-  if (
-    div.getBoundingClientRect().x >= 74 &&
-    div.getBoundingClientRect().x <= 76
-  ) {
-    return 1;
-  } else if (
-    div.getBoundingClientRect().x >= 213 &&
-    div.getBoundingClientRect().x <= 215
-  ) {
-    return 2;
-  } else if (
-    div.getBoundingClientRect().x >= 353 &&
-    div.getBoundingClientRect().x <= 355
-  ) {
-    return 3;
-  } else {
-    return 4;
-  }
-};
-
-// Checking if the column of the div matches the key pressed
-const detectKeyPressed = function (keyPressed) {
-  switch (keyPressed) {
-    case "ArrowLeft":
+  switch (div.dataset.column) {
+    case "first":
       return 1;
-    case "ArrowUp":
+    case "second":
       return 2;
-    case "ArrowDown":
+    case "third":
       return 3;
-    case "ArrowRight":
+    case "fourth":
       return 4;
   }
 };
@@ -209,10 +210,10 @@ const printAccuracy = function (scoreValue) {
   const accuracyPanel = document.querySelector("p");
   if (scoreValue === 0) {
     accuracyPanel.textContent = "OK !";
-    console.log("OK !");
+    // console.log("OK !");
   } else {
     accuracyPanel.textContent = "BAD !";
-    console.log("BAD !");
+    // console.log("BAD !");
   }
 };
 
@@ -225,6 +226,41 @@ const scoreIncrement = function () {
 // Printing score
 const scorePrint = function () {
   document.querySelector(".score").textContent = `${score}`;
+};
+
+// Converting key pressed to a number (1 - 4)
+const detectKeyPressed = function (keyPressed) {
+  switch (keyPressed) {
+    case "ArrowLeft":
+      playSample(1);
+      return 1;
+    case "ArrowUp":
+      playSample(2);
+      return 2;
+    case "ArrowDown":
+      playSample(3);
+      return 3;
+    case "ArrowRight":
+      playSample(4);
+      return 4;
+  }
+};
+
+// Playing samples
+
+const playSample = function (keyPressed) {
+  const kickAudio = new Audio("../audio/AR-Tech-Kicks-1-(57).wav");
+  const snareAudio = new Audio("../audio/909 Snare-(19).wav");
+  const hiHatAudio = new Audio("../audio/909-Hihat- (3).wav");
+
+  switch (keyPressed) {
+    case 1:
+      kickAudio.play();
+    case 2:
+      snareAudio.play();
+    case 3:
+      hiHatAudio.play();
+  }
 };
 
 // Event listeners
