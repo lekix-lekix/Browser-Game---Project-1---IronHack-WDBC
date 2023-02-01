@@ -8,7 +8,21 @@ let generatedDivArray = [];
 let frames = 0;
 let intervalId = null;
 
-// const sampleArray = [kickAudio, snareAudio, hiHatAudio];
+// Web Audio API
+
+const audioContext = new AudioContext();
+
+const audioKick = new Audio("./audio/Warehouse-Kickdrums-(7).wav");
+const audioSnare = new Audio("./audio/909 Snare-(19).wav");
+const audioHiHat = new Audio("./audio/909-Hihat- (3).wav");
+
+const source = audioContext.createMediaElementSource(
+  audioKick,
+  audioSnare,
+  audioHiHat
+);
+
+source.connect(audioContext.destination);
 
 const keys = {
   ArrowLeft: 1,
@@ -68,6 +82,7 @@ const noteObj = {
 
 // Moving the note down using setInterval (for now)
 const moveNote = function () {
+  if (intervalId) return;
   // const note = notesObj[frames];
   // if (note) {
   //   //display note
@@ -77,6 +92,7 @@ const moveNote = function () {
   let kickCount = 0;
   const kick = 30;
   const snare = 60;
+
   intervalId = setInterval(function movingNote() {
     if (frames % kick === 0) {
       generateDivNote("first");
@@ -232,13 +248,13 @@ const scorePrint = function () {
 const detectKeyPressed = function (keyPressed) {
   switch (keyPressed) {
     case "ArrowLeft":
-      playSample(1);
+      audioKick.play();
       return 1;
     case "ArrowUp":
-      playSample(2);
+      audioSnare.play();
       return 2;
     case "ArrowDown":
-      playSample(3);
+      audioHiHat.play();
       return 3;
     case "ArrowRight":
       playSample(4);
@@ -246,22 +262,37 @@ const detectKeyPressed = function (keyPressed) {
   }
 };
 
-// Playing samples
-
-const playSample = function (keyPressed) {
-  const kickAudio = new Audio("../audio/AR-Tech-Kicks-1-(57).wav");
-  const snareAudio = new Audio("../audio/909 Snare-(19).wav");
-  const hiHatAudio = new Audio("../audio/909-Hihat- (3).wav");
-
+// Stopping and resetting audio
+const stopReset = function (keyPressed) {
   switch (keyPressed) {
-    case 1:
-      kickAudio.play();
-    case 2:
-      snareAudio.play();
-    case 3:
-      hiHatAudio.play();
+    case "ArrowLeft":
+      audioKick.pause();
+      audioKick.currentTime = 0;
+    case "ArrowUp":
+      audioSnare.pause();
+      audioSnare.currentTime = 0;
+    case "ArrowDown":
+      audioHiHat.pause();
+      audioHiHat.currentTime = 0;
   }
 };
+
+// Playing samples
+
+// const playSample = function (keyPressed) {
+//   const kickAudio = new Audio("../audio/AR-Tech-Kicks-1-(57).wav");
+//   const snareAudio = new Audio("../audio/909 Snare-(19).wav");
+//   const hiHatAudio = new Audio("../audio/909-Hihat- (3).wav");
+
+//   switch (keyPressed) {
+//     case 1:
+//       kickAudio.play();
+//     case 2:
+//       snareAudio.play();
+//     case 3:
+//       hiHatAudio.play();
+//   }
+// };
 
 // Event listeners
 
@@ -275,5 +306,6 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("keyup", (event) => {
+  stopReset(event.key);
   unHighlight(event.key);
 });
