@@ -3,23 +3,41 @@ const accuracyScore = {
   bad: 0,
 };
 
+const drums = new Howl({
+  src: ["./audio/samples.webm", "./audio/samples.mp3"],
+  sprite: {
+    bass: [0, 3839.4104308390024],
+    "hi-hat": [5000, 147.3015873015875],
+    kick: [7000, 382.7664399092967],
+    snare: [9000, 351.56462585034024],
+  },
+});
+
 let score = 0;
 let generatedDivArray = [];
 let frames = 0;
 let intervalId = null;
 
+// Sheet music
+const sheetKick = {
+  0: true,
+  480: false,
+};
+
 // Web Audio API
 
 const audioContext = new AudioContext();
 
-const audioKick = new Audio("./audio/Warehouse-Kickdrums-(7).wav");
+const audioKick = new Audio("./audio/AR-Tech-Kicks-1-(57).wav");
 const audioSnare = new Audio("./audio/909 Snare-(19).wav");
 const audioHiHat = new Audio("./audio/909-Hihat- (3).wav");
+const audioBass = new Audio("../audio/TechBassU A0.wav");
 
 const source = audioContext.createMediaElementSource(
   audioKick,
   audioSnare,
-  audioHiHat
+  audioHiHat,
+  audioBass
 );
 
 source.connect(audioContext.destination);
@@ -31,31 +49,11 @@ const keys = {
   ArrowRight: 4,
 };
 
-// Selecting a random column to generate a note
-// const randomColumn = function () {
-//   const random = Math.floor(Math.random() * (5 - 1) + 1);
-//   switch (random) {
-//     case 1:
-//       return "first";
-//       break;
-//     case 2:
-//       return "second";
-//       break;
-//     case 3:
-//       return "third";
-//       break;
-//     case 4:
-//       return "fourth";
-//       break;
-//   }
-// };
-
 // Generating a div corresponding to a note to press
 const generateDivNote = function (columnSelected) {
   const noteDiv = document.createElement("div");
-  noteDiv.classList.add("div-test");
+  noteDiv.classList.add("div-note");
   noteDiv.dataset.column = columnSelected;
-  console.log(noteDiv);
   document.getElementById(columnSelected).appendChild(noteDiv);
   generatedDivArray.push(noteDiv);
 };
@@ -80,32 +78,51 @@ const noteObj = {
   20: "noteName",
 };
 
+// Activating Snare
+const snareActivate = function (frames) {
+  if (frames > 960) return true;
+  else return false;
+};
+
+// Activating hi hat
+const hiHatActivate = function (frames) {
+  if (frames > 480) return true;
+  else return false;
+};
+
 // Moving the note down using setInterval (for now)
 const moveNote = function () {
   if (intervalId) return;
-  // const note = notesObj[frames];
-  // if (note) {
-  //   //display note
-  // }
-  // noteAudios[note].play();
-  // let i = 0;
+
   let kickCount = 0;
+  let downbeat = 0;
   const kick = 30;
-  const snare = 60;
 
   intervalId = setInterval(function movingNote() {
+    // Kick
     if (frames % kick === 0) {
       generateDivNote("first");
       kickCount += kick;
+      downbeat++;
+      // drums.play("kick"); // to remove
     }
-    // Snare
-    if (frames % snare === 0 && frames !== 0) {
-      generateDivNote("second");
+
+    // Snares
+    if (snareActivate(frames)) {
+      if (frames % kick === 0 && downbeat % 2 === 0) {
+        generateDivNote("second");
+        // drums.play("snare"); // to remove
+      }
     }
+
     // Hi-hat
-    if (frames === kickCount - 15) {
-      generateDivNote("third");
+    if (hiHatActivate(frames)) {
+      if (frames === kickCount - 15) {
+        generateDivNote("third");
+        // drums.play("hi-hat");
+      }
     }
+
     for (const note of generatedDivArray) {
       const noteStyle = getComputedStyle(note);
       let topValue = parseInt(noteStyle.getPropertyValue("top"));
@@ -248,16 +265,16 @@ const scorePrint = function () {
 const detectKeyPressed = function (keyPressed) {
   switch (keyPressed) {
     case "ArrowLeft":
-      audioKick.play();
+      drums.play("kick");
       return 1;
     case "ArrowUp":
-      audioSnare.play();
+      drums.play("snare");
       return 2;
     case "ArrowDown":
-      audioHiHat.play();
+      drums.play("hi-hat");
       return 3;
     case "ArrowRight":
-      playSample(4);
+      drums.play("bass");
       return 4;
   }
 };
@@ -274,6 +291,9 @@ const stopReset = function (keyPressed) {
     case "ArrowDown":
       audioHiHat.pause();
       audioHiHat.currentTime = 0;
+    case "ArrowRight":
+      audioBass.pause();
+      audioBass.currentTime = 0;
   }
 };
 
