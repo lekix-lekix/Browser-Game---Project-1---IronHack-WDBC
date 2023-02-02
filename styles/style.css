@@ -9,6 +9,8 @@
 
 body {
   background: linear-gradient(90deg, #071318, #203a43, #1f3d49);
+  display: flex;
+  justify-content: center;
 }
 
 main {
