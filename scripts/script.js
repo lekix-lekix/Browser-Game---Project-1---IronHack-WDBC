@@ -3,10 +3,12 @@ const accuracyScore = {
   bad: 0,
 };
 
+// Audio samples imported
+
 const drums = new Howl({
   src: ["./audio/samples.webm", "./audio/samples.mp3"],
   sprite: {
-    bass: [0, 3839.4104308390024],
+    // bass: [0, 3839.4104308390024],
     "hi-hat": [5000, 147.3015873015875],
     kick: [7000, 382.7664399092967],
     snare: [9000, 351.56462585034024],
@@ -21,26 +23,18 @@ let intervalId = null;
 // Sheet music
 const sheetKick = {
   0: true,
-  480: false,
+  120: false,
+  200: true,
+  400: false,
 };
 
-// Web Audio API
+const sheetSnare = {
+  0: false,
+};
 
-const audioContext = new AudioContext();
-
-const audioKick = new Audio("./audio/AR-Tech-Kicks-1-(57).wav");
-const audioSnare = new Audio("./audio/909 Snare-(19).wav");
-const audioHiHat = new Audio("./audio/909-Hihat- (3).wav");
-const audioBass = new Audio("../audio/TechBassU A0.wav");
-
-const source = audioContext.createMediaElementSource(
-  audioKick,
-  audioSnare,
-  audioHiHat,
-  audioBass
-);
-
-source.connect(audioContext.destination);
+const sheetHiHat = {
+  0: false,
+};
 
 const keys = {
   ArrowLeft: 1,
@@ -63,44 +57,51 @@ const removeNote = function (noteToRemove) {
   noteToRemove.remove();
 };
 
-const notes = [
-  {
-    name: "cool stuff",
-    frame: 480,
-  },
-];
-
-const noteAudios = {
-  noteName: "audioElement",
-};
-
-const noteObj = {
-  20: "noteName",
+// Activating Kick
+const kickStart = function (frames) {
+  for (frameBool in sheetKick) {
+    console.log(`${frameBool} :${sheetKick[frameBool]}`);
+    if (Number(frameBool) === frames) {
+      return true;
+    }
+  }
 };
 
 // Activating Snare
-const snareActivate = function (frames) {
-  if (frames > 960) return true;
-  else return false;
+const snareStart = function (frames) {
+  for (frameBool in sheetSnare) {
+    if (Number(frameBool) === frames) {
+      return sheetSnare[frameBool];
+    }
+  }
 };
 
 // Activating hi hat
-const hiHatActivate = function (frames) {
-  if (frames > 480) return true;
-  else return false;
+const hiHatStart = function (frames) {
+  for (frameBool in sheetHiHat) {
+    if (Number(frameBool) === frames) {
+      return sheetHiHat[frameBool];
+    }
+  }
 };
 
-// Moving the note down using setInterval (for now)
+// Main engine : moving the note down using setInterval, set on 60hz and 120BPM
 const moveNote = function () {
   if (intervalId) return;
 
   let kickCount = 0;
   let downbeat = 0;
+  let kickBool = false;
   const kick = 30;
 
   intervalId = setInterval(function movingNote() {
     // Kick
-    if (frames % kick === 0) {
+    console.log(kickStart(frames));
+    if (kickStart(frames)) {
+      kickBool = !kickBool;
+    }
+
+    if (frames % kick === 0 && kickBool) {
       generateDivNote("first");
       kickCount += kick;
       downbeat++;
@@ -108,7 +109,7 @@ const moveNote = function () {
     }
 
     // Snares
-    if (snareActivate(frames)) {
+    if (snareStart(frames)) {
       if (frames % kick === 0 && downbeat % 2 === 0) {
         generateDivNote("second");
         // drums.play("snare"); // to remove
@@ -116,10 +117,10 @@ const moveNote = function () {
     }
 
     // Hi-hat
-    if (hiHatActivate(frames)) {
+    if (hiHatStart(frames)) {
       if (frames === kickCount - 15) {
         generateDivNote("third");
-        // drums.play("hi-hat");
+        // drums.play("hi-hat"); // to remove
       }
     }
 
@@ -196,7 +197,7 @@ const checkAccuracy = function (keyPressed) {
   //   } else {
   //     printAccuracy(1);
   //   }
-  // };
+  // };q
   let j = 0;
   while (j < generatedDivArray.length) {
     if (
@@ -279,41 +280,6 @@ const detectKeyPressed = function (keyPressed) {
   }
 };
 
-// Stopping and resetting audio
-const stopReset = function (keyPressed) {
-  switch (keyPressed) {
-    case "ArrowLeft":
-      audioKick.pause();
-      audioKick.currentTime = 0;
-    case "ArrowUp":
-      audioSnare.pause();
-      audioSnare.currentTime = 0;
-    case "ArrowDown":
-      audioHiHat.pause();
-      audioHiHat.currentTime = 0;
-    case "ArrowRight":
-      audioBass.pause();
-      audioBass.currentTime = 0;
-  }
-};
-
-// Playing samples
-
-// const playSample = function (keyPressed) {
-//   const kickAudio = new Audio("../audio/AR-Tech-Kicks-1-(57).wav");
-//   const snareAudio = new Audio("../audio/909 Snare-(19).wav");
-//   const hiHatAudio = new Audio("../audio/909-Hihat- (3).wav");
-
-//   switch (keyPressed) {
-//     case 1:
-//       kickAudio.play();
-//     case 2:
-//       snareAudio.play();
-//     case 3:
-//       hiHatAudio.play();
-//   }
-// };
-
 // Event listeners
 
 document.querySelector("button").addEventListener("click", function () {
@@ -326,6 +292,5 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("keyup", (event) => {
-  stopReset(event.key);
   unHighlight(event.key);
 });
