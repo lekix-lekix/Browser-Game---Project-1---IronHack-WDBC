@@ -1,0 +1,16 @@
+{
+  "src": [
+    "audio3.webm",
+    "audio3.mp3"
+  ],
+  "sprite": {
+    "chordsdeep.alp": [
+      0,
+      8000
+    ],
+    "Simplechords": [
+      9000,
+      8000
+    ]
+  }
+}
