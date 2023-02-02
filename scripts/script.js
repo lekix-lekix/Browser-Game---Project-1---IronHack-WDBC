@@ -8,10 +8,23 @@ const accuracyScore = {
 const drums = new Howl({
   src: ["./audio/samples.webm", "./audio/samples.mp3"],
   sprite: {
-    // bass: [0, 3839.4104308390024],
+    bass: [0, 3839.4104308390024],
     "hi-hat": [5000, 147.3015873015875],
     kick: [7000, 382.7664399092967],
     snare: [9000, 351.56462585034024],
+  },
+});
+
+const melofx = new Howl({
+  src: ["./audio1/melofx.webm", "./audio1/melofx.mp3"],
+  sprite: {
+    Bass1: [0, 761.3605442176871],
+    Bass2: [2000, 676.5079365079365],
+    ChordsAm2: [4000, 7933.90022675737],
+    ChordsAm: [13000, 7933.90022675737],
+    ChordsBbm: [22000, 7933.90022675737],
+    Noise1: [31000, 15000],
+    Noise2: [47000, 8008.344671201811],
   },
 });
 
@@ -22,25 +35,34 @@ let intervalId = null;
 
 // Sheet music
 const sheetKick = {
-  0: true,
-  120: false,
-  200: true,
-  400: false,
+  0: false,
+  1920: false, // 4 measures break
+  2400: true,
 };
 
 const sheetSnare = {
-  0: false,
+  0: false, // to reverse
+  960: false, // 8th measure
 };
 
 const sheetHiHat = {
   0: false,
+  3360: true,
 };
 
-const keys = {
-  ArrowLeft: 1,
-  ArrowUp: 2,
-  Arrowdown: 3,
-  ArrowRight: 4,
+const sheetBass = {
+  0: false,
+  1920: true,
+};
+
+const sheetChords = {
+  0: false,
+  1920: true,
+};
+
+const sheetNoise = {
+  0: false,
+  1920: true,
 };
 
 // Generating a div corresponding to a note to press
@@ -57,10 +79,9 @@ const removeNote = function (noteToRemove) {
   noteToRemove.remove();
 };
 
-// Activating Kick
+// Parsing a music sheet (object) and returning true when a change happen
 const kickStart = function (frames) {
   for (frameBool in sheetKick) {
-    console.log(`${frameBool} :${sheetKick[frameBool]}`);
     if (Number(frameBool) === frames) {
       return true;
     }
@@ -71,7 +92,7 @@ const kickStart = function (frames) {
 const snareStart = function (frames) {
   for (frameBool in sheetSnare) {
     if (Number(frameBool) === frames) {
-      return sheetSnare[frameBool];
+      return true;
     }
   }
 };
@@ -80,7 +101,34 @@ const snareStart = function (frames) {
 const hiHatStart = function (frames) {
   for (frameBool in sheetHiHat) {
     if (Number(frameBool) === frames) {
-      return sheetHiHat[frameBool];
+      return true;
+    }
+  }
+};
+
+// Activating bass
+const bassStart = function (frames) {
+  for (frameBool in sheetBass) {
+    if (Number(frameBool) === frames) {
+      return true;
+    }
+  }
+};
+
+// Activating chords
+const chordsStart = function (frames) {
+  for (frameBool in sheetChords) {
+    if (Number(frameBool) === frames) {
+      return true;
+    }
+  }
+};
+
+// Activating noise
+const noiseStart = function (frames) {
+  for (frameBool in sheetNoise) {
+    if (Number(frameBool) === frames) {
+      return true;
     }
   }
 };
@@ -89,57 +137,104 @@ const hiHatStart = function (frames) {
 const moveNote = function () {
   if (intervalId) return;
 
-  let kickCount = 0;
-  let downbeat = 0;
+  let beat = 0;
+  let beatEight = 1;
+  let downbeat = 1;
   let kickBool = false;
+  let snareBool = true;
+  let hiHatBool = true;
+  let bassBool = true;
+  let chordsBool = true;
+  let noiseBool = false;
+
   const kick = 30;
 
   intervalId = setInterval(function movingNote() {
-    // Kick
-    console.log(kickStart(frames));
+    // Activating or deactivating the kick pattern if a change happen
     if (kickStart(frames)) {
       kickBool = !kickBool;
     }
 
-    if (frames % kick === 0 && kickBool) {
-      generateDivNote("first");
-      kickCount += kick;
-      downbeat++;
-      // drums.play("kick"); // to remove
+    if (snareStart(frames)) {
+      snareBool = !snareBool;
+    }
+
+    if (hiHatStart(frames)) {
+      hiHatBool = !hiHatBool;
+    }
+
+    if (bassStart(frames)) {
+      bassBool = !bassBool;
+    }
+
+    if (chordsStart(frames)) {
+      chordsBool = !chordsBool;
+    }
+
+    // Kick
+    if (kickBool) {
+      if (frames % kick === 0) {
+        generateDivNote("first");
+        //drums.play("kick"); // to remove
+      }
     }
 
     // Snares
-    if (snareStart(frames)) {
+    if (snareBool) {
       if (frames % kick === 0 && downbeat % 2 === 0) {
         generateDivNote("second");
-        // drums.play("snare"); // to remove
+        //drums.play("snare"); // to remove
       }
     }
 
     // Hi-hat
-    if (hiHatStart(frames)) {
-      if (frames === kickCount - 15) {
+    if (hiHatBool) {
+      if (frames % beat === 15 || frames === 15) {
         generateDivNote("third");
-        // drums.play("hi-hat"); // to remove
+        //drums.play("hi-hat"); // to remove
       }
     }
 
+    // Bass
+    if (bassBool) {
+      if ((beatEight === 6 || beatEight === 3) && frames % beat === 15) {
+        generateDivNote("fourth");
+        //melofx.play("Bass2");
+      }
+    }
+
+    // Chords
+    if (chordsBool) {
+      melofx.volume(0.3, "ChordsAm2");
+      //melofx.play("ChordsAm2");
+      chordsBool = !chordsBool;
+    }
+
+    // Chords
+    if (noiseBool) {
+      //melofx.play("Noise2");
+      noiseBool = !noiseBool;
+    }
     for (const note of generatedDivArray) {
       const noteStyle = getComputedStyle(note);
       let topValue = parseInt(noteStyle.getPropertyValue("top"));
 
       note.style.top = `${topValue + 4}px`;
       if (topValue >= 600) {
-        if (!note.dataset.hit) {
-          // remove points
-        }
-        removeNote(note); // Will be collider detection in the future
+        removeNote(note);
       }
     }
     frames++;
-
-    // i++;
-    // console.log(note.style.top)
+    if (frames % 30 === 0) {
+      beatEight++;
+      if (beatEight === 8) {
+        beatEight = 0;
+      }
+    }
+    if (frames % kick === 0) {
+      beat += kick;
+      downbeat++;
+    }
   }, 1000 / 60);
 };
 
@@ -147,16 +242,16 @@ const moveNote = function () {
 const highlightSquare = function (keyPressed) {
   console.log(keyPressed);
   switch (keyPressed) {
-    case "ArrowLeft":
+    case "f":
       document.querySelector(".one").classList.add("highlight");
       break;
-    case "ArrowUp":
+    case "g":
       document.querySelector(".two").classList.add("highlight");
       break;
-    case "ArrowDown":
+    case "h":
       document.querySelector(".three").classList.add("highlight");
       break;
-    case "ArrowRight":
+    case "j":
       document.querySelector(".four").classList.add("highlight");
       break;
   }
@@ -166,16 +261,16 @@ const highlightSquare = function (keyPressed) {
 const unHighlight = function (keyPressed) {
   console.log(keyPressed);
   switch (keyPressed) {
-    case "ArrowLeft":
+    case "f":
       document.querySelector(".one").classList.remove("highlight");
       break;
-    case "ArrowUp":
+    case "g":
       document.querySelector(".two").classList.remove("highlight");
       break;
-    case "ArrowDown":
+    case "h":
       document.querySelector(".three").classList.remove("highlight");
       break;
-    case "ArrowRight":
+    case "j":
       document.querySelector(".four").classList.remove("highlight");
       break;
   }
@@ -200,10 +295,12 @@ const checkAccuracy = function (keyPressed) {
   // };q
   let j = 0;
   while (j < generatedDivArray.length) {
+    console.log(generatedDivArray[j].dataset.column);
     if (
       isOnSquare(generatedDivArray[j]) &&
       keyPressed === detectColumn(generatedDivArray[j])
     ) {
+      isOnSquare(generatedDivArray[j]);
       printAccuracy(0);
       scoreIncrement();
       generatedDivArray[j].dataset.hit = true;
@@ -227,16 +324,21 @@ const isOnSquare = function (div) {
 
 // Detect column
 const detectColumn = function (div) {
-  switch (div.dataset.column) {
-    case "first":
-      return 1;
-    case "second":
-      return 2;
-    case "third":
-      return 3;
-    case "fourth":
-      return 4;
-  }
+  if (div.dataset.column === "first") return 1;
+  else if (div.dataset.column === "second") return 2;
+  else if (div.dataset.column === "third") return 3;
+  else return 4;
+
+  // switch (div.dataset.column) {
+  //   case "first":
+  //     return 1;
+  //   case "second":
+  //     return 2;
+  //   case "third":
+  //     return 3;
+  //   case "fourth":
+  //     return 4;
+  // }
 };
 
 // Printing accuracy
@@ -244,10 +346,8 @@ const printAccuracy = function (scoreValue) {
   const accuracyPanel = document.querySelector("p");
   if (scoreValue === 0) {
     accuracyPanel.textContent = "OK !";
-    // console.log("OK !");
   } else {
     accuracyPanel.textContent = "BAD !";
-    // console.log("BAD !");
   }
 };
 
@@ -265,17 +365,17 @@ const scorePrint = function () {
 // Converting key pressed to a number (1 - 4)
 const detectKeyPressed = function (keyPressed) {
   switch (keyPressed) {
-    case "ArrowLeft":
+    case "f":
       drums.play("kick");
       return 1;
-    case "ArrowUp":
+    case "g":
       drums.play("snare");
       return 2;
-    case "ArrowDown":
+    case "h":
       drums.play("hi-hat");
       return 3;
-    case "ArrowRight":
-      drums.play("bass");
+    case "j":
+      melofx.play("Bass2");
       return 4;
   }
 };
