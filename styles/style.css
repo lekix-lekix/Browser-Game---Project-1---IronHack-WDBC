@@ -1,22 +1,29 @@
+@import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "VT323", monospace;
 }
 
 body {
-  background-color: darkred;
+  background: linear-gradient(90deg, #071318, #203a43, #1f3d49);
 }
 
 main {
   display: flex;
-  justify-content: center;
-  height: 40rem;
+  justify-content: space-evenl;
+  height: 35rem;
+  width: 75rem;
 }
+
 .game {
   width: 35rem;
   height: 45rem;
-  background-color: black;
+
+  right: 7rem;
+  background-color: #071318;
   height: fit-content;
 }
 
@@ -36,9 +43,10 @@ main {
 
 .columns,
 .columns > * {
-  border: 1px solid darkred;
+  border: 1px solid white;
   height: 35rem;
   position: relative;
+  border-radius: 5px;
 }
 
 .bottom-squares {
@@ -49,7 +57,8 @@ main {
 }
 
 .bottom-squares div {
-  border: 1px solid darkred;
+  border: 1px solid white;
+  border-radius: 5px;
   width: 20rem;
 }
 
@@ -61,7 +70,9 @@ main {
 .div-note {
   aspect-ratio: 2;
   position: absolute;
-  background-color: rgb(255, 225, 0);
+  background-color: white;
+  border: 6px solid cyan;
+  border-radius: 5px;
   width: 5rem;
   height: 2rem;
   opacity: 0.8;
@@ -69,23 +80,88 @@ main {
 }
 
 .highlight {
-  background-color: yellow;
-}
-
-.button {
-  height: 10rem;
+  background-color: cyan;
 }
 
 aside {
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
+  position: relative;
+  left: 5rem;
   justify-content: space-evenly;
+  width: 30rem;
+  margin-right: 3rem;
+}
+
+h2 {
+  font-size: 50px;
+  color: white;
 }
 
 p {
-  font-size: 500;
-  background-color: white;
-  color: black;
-  height: 8rem;
-  width: 8rem;
+  font-size: 50px;
+  font-weight: 500;
+  background-color: transparent;
+  color: white;
+  height: 3rem;
+  width: 5rem;
+}
+
+.logo-img {
+  height: 5rem;
+  width: 30rem;
+}
+
+.accuracy {
+  display: flex;
+  flex-direction: column;
+  width: 10rem;
+}
+
+.score-div {
+  width: 10rem;
+}
+
+.dancing-dog {
+  display: none;
+  border-radius: 50%;
+  border: 6px solid white;
+  outline: 8px solid cyan;
+  height: 15rem;
+  width: 15rem;
+  position: relative;
+  right: 15rem;
+  top: 5rem;
+}
+
+.button-54 {
+  font-size: 25px;
+  letter-spacing: 2px;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #000;
+  cursor: pointer;
+  border: 3px solid;
+  padding: 0.25em 0.5em;
+  box-shadow: 1px 1px 0px 0px, 2px 2px 0px 0px, 3px 3px 0px 0px, 4px 4px 0px 0px,
+    5px 5px 0px 0px;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: 10rem;
+  height: 5rem;
+}
+
+.button-54:active {
+  box-shadow: 0px 0px 0px 0px;
+  top: 5px;
+  left: 5px;
+}
+
+@media (min-width: 768px) {
+  .button-54 {
+    padding: 0.25em 0.75em;
+  }
 }

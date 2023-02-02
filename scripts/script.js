@@ -235,12 +235,15 @@ const moveNote = function () {
       beat += kick;
       downbeat++;
     }
+
+    if (frames === 2450) {
+      document.querySelector(".dancing-dog").src = "./catrave.gif";
+    }
   }, 1000 / 60);
 };
 
 // Highlighting a square upon keystroke
 const highlightSquare = function (keyPressed) {
-  console.log(keyPressed);
   switch (keyPressed) {
     case "f":
       document.querySelector(".one").classList.add("highlight");
@@ -259,7 +262,6 @@ const highlightSquare = function (keyPressed) {
 
 // Removing the highlight when keyup
 const unHighlight = function (keyPressed) {
-  console.log(keyPressed);
   switch (keyPressed) {
     case "f":
       document.querySelector(".one").classList.remove("highlight");
@@ -278,37 +280,18 @@ const unHighlight = function (keyPressed) {
 
 // Detecting accuracy + key and columns comparison + firing score incrementing / printing (too much)
 const checkAccuracy = function (keyPressed) {
-  //   const divOnSquare = generatedDivArray.some((div) => isOnSquare(div));
-  //   if (generatedDivArray.length < 1) return;
-  //   if (
-  //     divOnSquare &&
-  //     keyPressed === detectColumn(generatedDivArray.find((div) => isOnSquare()))
-  //   ) {
-  //     // console.log(generatedDivArray[keys[keyPressed]]);
-  //     // console.log(keys[keyPressed]);
-  //     printAccuracy(0);
-  //     scoreIncrement();
-  //     generatedDivArray = generatedDivArray.filter((div) => !isOnSquare(div));
-  //   } else {
-  //     printAccuracy(1);
-  //   }
-  // };q
-  let j = 0;
-  while (j < generatedDivArray.length) {
-    console.log(generatedDivArray[j].dataset.column);
-    if (
-      isOnSquare(generatedDivArray[j]) &&
-      keyPressed === detectColumn(generatedDivArray[j])
-    ) {
-      isOnSquare(generatedDivArray[j]);
-      printAccuracy(0);
-      scoreIncrement();
-      generatedDivArray[j].dataset.hit = true;
-      generatedDivArray.filter((div) => !isOnSquare(div));
-    } else {
-      printAccuracy(1);
-    }
-    j++;
+  const divOnSquare = generatedDivArray.some((div) => isOnSquare(div));
+  if (generatedDivArray.length < 1) return;
+  if (
+    divOnSquare &&
+    keyPressed ===
+      detectColumn(generatedDivArray.find((div) => isOnSquare(div)))
+  ) {
+    printAccuracy(0);
+    scoreIncrement();
+    //generatedDivArray = generatedDivArray.filter((div) => !isOnSquare(div));
+  } else {
+    printAccuracy(1);
   }
 };
 
@@ -328,26 +311,15 @@ const detectColumn = function (div) {
   else if (div.dataset.column === "second") return 2;
   else if (div.dataset.column === "third") return 3;
   else return 4;
-
-  // switch (div.dataset.column) {
-  //   case "first":
-  //     return 1;
-  //   case "second":
-  //     return 2;
-  //   case "third":
-  //     return 3;
-  //   case "fourth":
-  //     return 4;
-  // }
 };
 
 // Printing accuracy
 const printAccuracy = function (scoreValue) {
-  const accuracyPanel = document.querySelector("p");
-  if (scoreValue === 0) {
-    accuracyPanel.textContent = "OK !";
+  const accuracyPanel = document.querySelector(".accuracy-p");
+  if (scoreValue === 1) {
+    accuracyPanel.textContent = "OK!";
   } else {
-    accuracyPanel.textContent = "BAD !";
+    accuracyPanel.textContent = "BAD!";
   }
 };
 
@@ -359,7 +331,7 @@ const scoreIncrement = function () {
 
 // Printing score
 const scorePrint = function () {
-  document.querySelector(".score").textContent = `${score}`;
+  document.querySelector(".score").textContent = `${score}` + "!";
 };
 
 // Converting key pressed to a number (1 - 4)
@@ -384,6 +356,7 @@ const detectKeyPressed = function (keyPressed) {
 
 document.querySelector("button").addEventListener("click", function () {
   moveNote();
+  document.querySelector(".dancing-dog").style.display = "block";
 });
 
 window.addEventListener("keydown", (event) => {
