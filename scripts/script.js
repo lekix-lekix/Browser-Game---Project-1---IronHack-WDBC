@@ -13,6 +13,7 @@ const drums = new Howl({
     kick: [7000, 382.7664399092967],
     snare: [9000, 351.56462585034024],
   },
+  volume: 0.3,
 });
 
 const melofx = new Howl({
@@ -26,6 +27,17 @@ const melofx = new Howl({
     Noise1: [31000, 15000],
     Noise2: [47000, 8008.344671201811],
   },
+  volume: 0.3,
+});
+
+const chordsSamples = new Howl({
+  src: ["./audio3/audio3.webm", "./audio3/audio3.mp3"],
+  sprite: {
+    chordsdeep: [0, 8000],
+    Simplechords: [9000, 8000],
+  },
+  loop: true,
+  volume: 0.5,
 });
 
 let score = 0;
@@ -57,7 +69,7 @@ const sheetBass = {
 
 const sheetChords = {
   0: false,
-  1920: true,
+  1992: true,
 };
 
 const sheetNoise = {
@@ -204,11 +216,10 @@ const moveNote = function () {
     }
 
     // Chords
-    if (chordsBool) {
-      melofx.volume(0.3, "ChordsAm2");
-      //melofx.play("ChordsAm2");
-      chordsBool = !chordsBool;
-    }
+    // if (chordsBool) {
+    //   chordsSamples.play("Simplechords");
+    //   chordsBool = !chordsBool;
+    // }
 
     // Chords
     if (noiseBool) {
